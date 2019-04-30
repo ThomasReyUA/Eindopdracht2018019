@@ -16,12 +16,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
 private:
     Ui::MainWindow *ui;
-    ProcessedIm myProcessedIm;
+    ProcessedIm myProcessedIm;  //This is where the magic happens
 };
 
 #endif // MAINWINDOW_H

@@ -3,38 +3,47 @@
 #include "opencv2/opencv.hpp"
 #include "ellipse.h"
 #include <vector>
+#include <time.h>
 
 class ProcessedIm
 {
     friend class MainWindow;
 public:
-    ProcessedIm(int R_,int C_);
-    void Xie_Algorithm();
-    void CV_Algorithm();
+    ProcessedIm(int R_,int C_);     //constructor
 
-    void reset();
-    void addEllipse(Ellipse el1);
-    //void addLine(Line l1);
-    void setInputMat(cv::Mat newIm);
-    void addNoise(int N);
-
-    std::vector<Ellipse> XieRecognizedEllipses;
-    std::vector<Ellipse> CVRecognizedEllipses;
-
-    cv::Mat Result;
 
 protected:
-    void showInputMat();
-    void showResultMat();
+    void Xie_Algorithm();           //Our own implementation of the algorithm, outputs Ellipses into 'XieRecognizedEllipses'
+    void CV_Algorithm();            //Implementation of cv function 'fitEllipse', outputs Ellipses into 'CVRecognizedEllipses'
+
+    void reset();                   //Resets all Mat-obj to zero's, all counters to 0 and all containers to empty
+    void addEllipse(Ellipse el1);   //Draws Ellipse on InputMat
+    //void addLine(Line l1);          //Draws Line on InputMat
+    void setInputMat(cv::Mat newIm);//Sets InputMat to 256x256 grayscale-reduction of 'newIm'
+    void addNoise(int Noise);       //Adds Noise random white pixels on InputMat
+
+    std::vector<Ellipse> XieRecognizedEllipses;     //container for the Ellipses found with Xie-algorithm
+    std::vector<Ellipse> CVRecognizedEllipses;      //container for the Ellipses found with CV-algorithm
+
+    cv::Mat Result;                 //Temporary Mat to draw results on
+
+    void showInputMat();            //Temporary function to show input
+    void showResultMat();           //Temporary function to show results
+
+    int N,M;                        //Keep track of SignalPoints and WhitePoints
+
+    size_t thresh;                  //Thresholdvalue for findContours
+
 private:
-    const int R,C;
-    cv::Mat InputMat;
-    cv::Mat NoiseMat;
-    cv::Mat EllipseMat;
+    const int R,C;                  //#rows,#columns respectively of mat-objects
 
-    cv::Mat blankIm();
+    cv::Mat inputMat;               //Container for input
 
-    std::vector<cv::Point> allSignalPixels();
+    cv::Mat blankIm();              //Function that makes a black R*C-Mat
+
+    std::vector<cv::Point>  getBestContour(cv::Mat);    //Function returns the largest Contour (vector of points) greater that thresh
+
+    std::vector<cv::Point> allSignalPixels();   //Function to list all white pixels... no longer needed I think
 
 };
 

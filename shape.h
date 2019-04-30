@@ -7,6 +7,7 @@ class Shape
 public:
     Shape();
     void draw();
+    void remove();
 };
 
 #endif // SHAPE_H

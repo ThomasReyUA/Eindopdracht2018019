@@ -10,16 +10,23 @@ Ellipse::Ellipse(cv::Point M_,int a_,int b_,double angle_):
 }
 
 double Ellipse::initialize_alpha(double angle) const{
-    while(angle > M_PI/2){
-        angle -= M_PI;
+    while(angle > 90){
+        angle -= 180;
     }
-    while(angle < -M_PI/2){
-        angle += M_PI;
+    while(angle < 90){
+        angle += 180;
     }
     return angle;
 }
 
-void Ellipse::draw(cv::Mat mat){
-    double alpha = -angle*180/M_PI;
-    cv::ellipse(mat,M,cv::Size(a,b),alpha ,0,360,255);
+void Ellipse::draw(cv::Mat mat,int thickness){
+    double alpha = -angle;
+    cv::ellipse(mat,M,cv::Size(a,b),alpha ,0,360,255,thickness);
 }
+
+
+void Ellipse::remove(cv::Mat mat,int thickness){
+    double alpha = -angle;
+    cv::ellipse(mat,M,cv::Size(a,b),alpha ,0,360,0,thickness);
+}
+

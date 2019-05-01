@@ -9,14 +9,9 @@ Ellipse::Ellipse(cv::Point M_,int a_,int b_,double angle_):
 
 }
 
-double Ellipse::initialize_alpha(double angle) const{
-    while(angle > 90){
-        angle -= 180;
-    }
-    while(angle < 90){
-        angle += 180;
-    }
-    return angle;
+double Ellipse::initialize_alpha(double angle_) const{
+        int c1 = int(round(angle_/180));
+        return (angle_+c1*180);
 }
 
 void Ellipse::draw(cv::Mat mat,int thickness){

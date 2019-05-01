@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-    //Temporary tests etc. are best done in 'mainwindow.cpp'
+    //Temporary tests etc. are best done in 'mainwindow.cpp', not in main.cpp
     QApplication a(argc, argv);
     MainWindow w;
     w.show();

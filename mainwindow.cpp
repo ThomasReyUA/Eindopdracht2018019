@@ -20,9 +20,12 @@ static int C = 256;//Temporary
 // - Xie-Algoritme
 // - Rectangle- en Line-objects
 // - setInputMat-functie om ingeladen afbeeldingen te kunnen processen
+// - Onderscheid Public - Protected - Private en Const opkuisen
+
 // - Optimalisatie CV_Algoritme/getBestContour-functie om ipv
 //   telkens opnieuw de beste gewoon alle goeie te returnen
-// - Onderscheid Public - Protected - Private en Const opkuisen
+//   -> geprobeerd, werkt beduidend minder goed en niet merkbaar sneller
+//
 
 
 //MainWindow constructor
@@ -35,8 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     //Define 2 ellipses
-    Ellipse el1(cv::Point(R/4,C/4),50,20,-100);
-    Ellipse el2(cv::Point(R/4,C/2),80,20,0);
+    Ellipse el1(cv::Point(64,64),50,20,-100);
+    Ellipse el2(cv::Point(64,128),80,20,0);
 
     //Add the 2 ellipses to the image processing
     myProcessedIm.addEllipse(el1);
@@ -51,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //Temporary visualisation of results
     myProcessedIm.showInputMat();
     myProcessedIm.showResultMat();
+
+
 
 }
 

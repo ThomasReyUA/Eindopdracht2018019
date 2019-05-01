@@ -14,7 +14,7 @@ public:
 
 protected:
     void Xie_Algorithm();           //Our own implementation of the algorithm, outputs Ellipses into 'XieRecognizedEllipses'
-    void CV_Algorithm();            //Implementation of cv function 'fitEllipse', outputs Ellipses into 'CVRecognizedEllipses'
+    void CV_Algorithm(size_t thresh=100);            //Implementation of cv function 'fitEllipse', outputs Ellipses into 'CVRecognizedEllipses'
 
     void reset();                   //Resets all Mat-obj to zero's, all counters to 0 and all containers to empty
     void addEllipse(Ellipse el1);   //Draws Ellipse on InputMat
@@ -32,7 +32,6 @@ protected:
 
     int N,M;                        //Keep track of SignalPoints and WhitePoints
 
-    size_t thresh;                  //Thresholdvalue for findContours
 
 private:
     const int R,C;                  //#rows,#columns respectively of mat-objects
@@ -41,7 +40,7 @@ private:
 
     cv::Mat blankIm();              //Function that makes a black R*C-Mat
 
-    std::vector<cv::Point>  getBestContour(cv::Mat);    //Function returns the largest Contour (vector of points) greater that thresh
+    std::vector<cv::Point>  getBestContour(cv::Mat,size_t thresh);    //Function returns the largest Contour (vector of points) greater that thresh
 
     std::vector<cv::Point> allSignalPixels();   //Function to list all white pixels... no longer needed I think
 

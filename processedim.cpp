@@ -4,10 +4,10 @@ ProcessedIm::ProcessedIm(int R_,int C_):
     R(R_),
     C(C_)
 {
-    thresh = 100;
     std::srand(time(nullptr));
     reset();
 }
+
 
 void ProcessedIm::reset(){
     inputMat = blankIm();
@@ -39,34 +39,39 @@ void ProcessedIm::showResultMat(){
     cv::imshow("Result",Result);
 }
 
-void ProcessedIm::CV_Algorithm(){
+void ProcessedIm::CV_Algorithm(size_t thresh){
 
     cv::Mat im = inputMat.clone();
-    std::vector<cv::Point> currentContour = getBestContour(im);
+    std::vector<cv::Point> currentContour = getBestContour(im,thresh);
     while(currentContour.size() > 0) {
         cv::RotatedRect box = cv::fitEllipse(currentContour);
         Ellipse res(cv::Point(int(box.center.x),int(box.center.y)),int(box.size.height/2),int(box.size.width/2),90-double(box.angle));
         CVRecognizedEllipses.push_back(res);
         res.remove(im,4);
-        currentContour = getBestContour(im);
+        currentContour = getBestContour(im,thresh);
         //std::cout << CVRecognizedEllipses.size() << std::endl;
     }
-    for(size_t i=0;i<CVRecognizedEllipses.size();++i){
-        CVRecognizedEllipses.at(i).draw(Result);
+    for(auto el:CVRecognizedEllipses){
+        el.draw(Result);
     }
 
-    //    cv::RotatedRect box = cv::fitEllipse(pixelList);
-    //    std::cout << "Center " << box.center << std::endl;
-    //    std::cout << " a b " << int(box.size.height/2) << " " << int(box.size.width/2) << std::endl;
-    //    std::cout << " angle "<< 90-box.angle<< std::endl;
-    //    Ellipse res(cv::Point(int(box.center.x),int(box.center.y)),int(box.size.height/2),int(box.size.width/2),90-double(box.angle));
-    //    CVRecognizedEllipses.push_back(res);
-    //    res.draw(Result);
-    //    cv::imshow("Result",Result);
+    //Temporarily Printing results
+    int x,y,a,b;
+    double angle;
+    printf("# of ellipses: %lu\n",CVRecognizedEllipses.size());
+    for(auto el : CVRecognizedEllipses){
+        x=el.M.x;
+        y=el.M.y;
+        a=el.a;
+        b=el.b;
+        angle=el.angle;
+        printf("M = [%3d %3d], a = %3d, b = %3d, angle = %3.0f°\n", x,y,a,b,angle);
+    }
+
 }
 
 
-std::vector<cv::Point>  ProcessedIm::getBestContour(cv::Mat im ){
+std::vector<cv::Point>  ProcessedIm::getBestContour(cv::Mat im ,size_t thresh){
     cv::Mat canny_output;
     std::vector<std::vector<cv::Point> > contours;
     std::vector<cv::Vec4i> hierarchy;
@@ -77,9 +82,9 @@ std::vector<cv::Point>  ProcessedIm::getBestContour(cv::Mat im ){
 
     std::vector<cv::Point> bestContour = contours.at(0);
     size_t currentSize = bestContour.size();
-    for(size_t i = 0;i<contours.size();++i){
-        if(contours.at(i).size()>currentSize){
-            bestContour = contours.at(i);
+    for(auto cont : contours){
+        if(cont.size()>currentSize){
+            bestContour = cont;
             currentSize = bestContour.size();
         }
     }

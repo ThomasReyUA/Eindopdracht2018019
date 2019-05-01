@@ -3,6 +3,8 @@
 #include "shape.h"
 
 class Ellipse : public Shape{
+    friend class MainWindow;
+    friend class ProcessedIm;
 public:
     Ellipse(cv::Point M,int a,int b,double angle);  //Constructor
 

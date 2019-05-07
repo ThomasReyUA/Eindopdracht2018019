@@ -71,8 +71,20 @@ void ProcessedIm::CV_Algorithm(size_t thresh){
 }
 void ProcessedIm::Xie_Algorithm(double reqLeastDistance1, double reqLeastDistance2, double reqLeastVotesb) //input=binary mat file with the contourpoints, all points are stored in a vector of Points
 {
+    reqLeastDistance1=reqLeastDistance1*2;
     cv::Mat im =inputMat.clone();
+
     std::vector<cv::Point> contourPoints;
+    /*
+    cv::Mat canny_output;
+    std::vector<std::vector<cv::Point> > contours;
+    std::vector<cv::Vec4i> hierarchy;
+
+    cv::Canny(im, canny_output, 100, 200, 3 );
+
+    findContours( canny_output, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
+    findNonZero(canny_output,contourPoints);
+    */
     findNonZero(im,contourPoints);
     std::vector<int> vectorVotesb(148);
     cv::Point2i center(0,0);
@@ -131,7 +143,7 @@ void ProcessedIm::Xie_Algorithm(double reqLeastDistance1, double reqLeastDistanc
                         b=(itMaxEl-vectorVotesb.begin());
                         Ellipse res(center,a,b,-alpha*180/CV_PI);
                         XieRecognizedEllipses.push_back(res);
-                        res.remove(im,4);
+                        res.remove(im,6);
                         if(cv::countNonZero(im)<1)
                         {
                             std::cout<<"test"<<std::endl;
@@ -160,6 +172,7 @@ void ProcessedIm::Xie_Algorithm(double reqLeastDistance1, double reqLeastDistanc
 
     }
 }
+
 
 
 std::vector<cv::Point>  ProcessedIm::getBestContour(cv::Mat im ,size_t thresh){

@@ -2,18 +2,23 @@
 #define PROCESSEDIM_H
 #include "opencv2/opencv.hpp"
 #include "ellipse.h"
+#include "compareFunctions.h"
 #include <vector>
+
 #include <time.h>
+#include <stdio.h>
+#include <algorithm>
 
 class ProcessedIm
 {
     friend class MainWindow;
 public:
     ProcessedIm(int R_,int C_);     //constructor
-
-
+    void test();
 protected:
-    void Xie_Algorithm();           //Our own implementation of the algorithm, outputs Ellipses into 'XieRecognizedEllipses'
+    void Xie_Algorithm(double reqLeastDistance1, double reqLeastDistance2, double reqLeastVotesb);
+    void Xie_Algorithm2(double reqLeastDistance1, double reqLeastDistance2, double reqLeastVotesb);
+    //Our own implementation of the algorithm, outputs Ellipses into 'XieRecognizedEllipses'
     void CV_Algorithm(size_t thresh=100);            //Implementation of cv function 'fitEllipse', outputs Ellipses into 'CVRecognizedEllipses'
 
     void reset();                   //Resets all Mat-obj to zero's, all counters to 0 and all containers to empty
@@ -44,6 +49,8 @@ private:
 
     std::vector<cv::Point> allSignalPixels();   //Function to list all white pixels... no longer needed I think
 
-};
+
+
+   };
 
 #endif // PROCESSEDIM_H

@@ -36,27 +36,28 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     ui->setupUi(this);
-
+    ///*
     //Define 2 ellipses
     Ellipse el1(cv::Point(64,64),50,20,-100);
-    Ellipse el2(cv::Point(64,128),80,20,0);
+    Ellipse el2(cv::Point(120,128),80,20,0);
+    Ellipse el3(cv::Point(200,50),40,30,30);
 
     //Add the 2 ellipses to the image processing
     myProcessedIm.addEllipse(el1);
     myProcessedIm.addEllipse(el2);
+    myProcessedIm.addEllipse(el3);
 
     //Add some noise
-    myProcessedIm.addNoise(200);
+    //myProcessedIm.addNoise(100);
 
     //Ellipse detection with cv::fitEllipse()
-    myProcessedIm.CV_Algorithm();
-
+    //myProcessedIm.CV_Algorithm();
+    myProcessedIm.Xie_Algorithm(40,20,100);
     //Temporary visualisation of results
     myProcessedIm.showInputMat();
     myProcessedIm.showResultMat();
-
-
-
+    //*/
+    //myProcessedIm.test();
 }
 
 MainWindow::~MainWindow()

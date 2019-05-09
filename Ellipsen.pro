@@ -29,13 +29,15 @@ SOURCES += \
         mainwindow.cpp \
     shape.cpp \
     ellipse.cpp \
-    processedim.cpp
+    processedim.cpp \
+    compareFunctions.cpp
 
 HEADERS += \
         mainwindow.h \
     shape.h \
     ellipse.h \
-    processedim.h
+    processedim.h \
+    compareFunctions.h
 
 FORMS += \
         mainwindow.ui
@@ -45,4 +47,4 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 CONFIG  += link_pkgconfig
-PKGCONFIG += opencv4
+PKGCONFIG += opencv

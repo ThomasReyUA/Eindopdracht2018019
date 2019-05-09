@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include "processedim.h"
 #include "shape.h"
+#include "compareFunctions.h"
 #include "ellipse.h"
 
 namespace Ui {

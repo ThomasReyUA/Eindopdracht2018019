@@ -29,6 +29,7 @@ protected:
 
     std::vector<Ellipse> XieRecognizedEllipses;     //container for the Ellipses found with Xie-algorithm
     std::vector<Ellipse> CVRecognizedEllipses;      //container for the Ellipses found with CV-algorithm
+    std::vector<Ellipse> InputEllipses;             //container for the Ellipses from the input
 
     cv::Mat Result;                 //Temporary Mat to draw results on
 
@@ -44,6 +45,10 @@ private:
     cv::Mat inputMat;               //Container for input
 
     cv::Mat blankIm();              //Function that makes a black R*C-Mat
+
+    bool inputMade = false;         //Bool to see if there is already an up to date inputMat
+    bool isLoaded = false;
+
 
     std::vector<cv::Point>  getBestContour(cv::Mat,size_t thresh);    //Function returns the largest Contour (vector of points) greater that thresh
 

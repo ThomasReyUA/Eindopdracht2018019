@@ -30,7 +30,8 @@ void ProcessedIm::test()
 
 ProcessedIm::ProcessedIm(int R_,int C_):
     R(R_),
-    C(C_)
+    C(C_),
+    inputMade(false)
 {
     std::srand(time(NULL));
     reset();
@@ -272,10 +273,10 @@ void ProcessedIm::Xie_Algorithm(double reqLeastDistance1, double reqLeastDistanc
                 if ((*itMaxEl)>reqLeastVotesb)
                 {
                      b=(itMaxEl-vectorVotesb.begin());
-                     Ellipse res(center,a,b,-alpha*180/CV_PI);
+                     Ellipse res(center,a,b,alpha*180/CV_PI);
                      XieRecognizedEllipses.push_back(res);
                      res.remove(im,4);
-                     if(countNonZero(im)<1)
+                     if(countNonZero(im)<reqLeastVotesb)
                      {
                          goto endfunction;
                      }
@@ -307,12 +308,15 @@ void ProcessedIm::Xie_Algorithm(double reqLeastDistance1, double reqLeastDistanc
         ++it1;
     }
     endfunction:
+    std::cout<<"t"<<std::endl;
+    /*
     //temp drawing found ellipses
     for(std::vector<Ellipse>::iterator it=XieRecognizedEllipses.begin(); it!=XieRecognizedEllipses.end();it++)
     {
         (*it).draw(Result);
 
     }
+*/
 }
 
 

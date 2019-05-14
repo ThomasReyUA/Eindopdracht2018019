@@ -183,6 +183,7 @@ void MainWindow::on_input_clicked()
 
             Ellipse el(cv::Point(x,y), a, b, alpha); // constructing an ellipse.
             myProcessedIm.addEllipse(el); // adding the ellips to the inputMat
+            myProcessedIm.InputEllipses.push_back(el);
         }
         myProcessedIm.addNoise(ui->noiseSpinBox->value());
         myProcessedIm.inputMade = true;
@@ -406,6 +407,7 @@ void MainWindow::on_calculate_clicked()
 void MainWindow::on_draw_clicked()
 {
     myProcessedIm.Result = cv::Mat(cv::Size(ui->graphicsView->width(), ui->graphicsView->height()), CV_8UC3, cv::Scalar(0,0,0));
+
     if(ui->input_check->isChecked())
     {
         if(myProcessedIm.isLoaded)
@@ -416,7 +418,7 @@ void MainWindow::on_draw_clicked()
         {
             for(std::vector<Ellipse>::iterator it = myProcessedIm.InputEllipses.begin(); it < myProcessedIm.InputEllipses.end(); it++)
             {
-                cv::ellipse(myProcessedIm.Result,(*it).M,cv::Size((*it).a,(*it).b),(*it).angle ,0,360,(0,0,255),1);
+                cv::ellipse(myProcessedIm.Result,(*it).M,cv::Size((*it).a,(*it).b),-(*it).angle ,0,360,cv::Scalar(255,255,255),1);
             }
         }
     }
@@ -425,7 +427,7 @@ void MainWindow::on_draw_clicked()
     {
         for(std::vector<Ellipse>::iterator it = myProcessedIm.CVRecognizedEllipses.begin(); it < myProcessedIm.CVRecognizedEllipses.end(); it++)
         {
-            cv::ellipse(myProcessedIm.Result,(*it).M,cv::Size((*it).a,(*it).b),(*it).angle ,0,360,(255,0,0),1);
+            cv::ellipse(myProcessedIm.Result,(*it).M,cv::Size((*it).a,(*it).b),-(*it).angle ,0,360,cv::Scalar(255,0,0),1);
         }
     }
 
@@ -433,7 +435,7 @@ void MainWindow::on_draw_clicked()
     {
         for(std::vector<Ellipse>::iterator it = myProcessedIm.XieRecognizedEllipses.begin(); it < myProcessedIm.XieRecognizedEllipses.end(); it++)
         {
-            cv::ellipse(myProcessedIm.Result,(*it).M,cv::Size((*it).a,(*it).b),(*it).angle ,0,360,(0,0,255),1);
+            cv::ellipse(myProcessedIm.Result,(*it).M,cv::Size((*it).a,(*it).b),-(*it).angle ,0,360,cv::Scalar(0,0,255),1);
         }
     }
 

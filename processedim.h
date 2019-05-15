@@ -47,8 +47,6 @@ private:
     cv::Mat blankIm();              //Function that makes a black R*C-Mat
 
     bool inputMade = false;         //Bool to see if there is already an up to date inputMat
-    bool isLoaded = false;
-
 
     std::vector<cv::Point>  getBestContour(cv::Mat,size_t thresh);    //Function returns the largest Contour (vector of points) greater that thresh
 

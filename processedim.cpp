@@ -40,7 +40,6 @@ ProcessedIm::ProcessedIm(int R_,int C_):
 
 void ProcessedIm::reset(){
     inputMat = blankIm();
-    Result = blankIm();
     XieRecognizedEllipses.clear();
     CVRecognizedEllipses.clear();
     N=0;

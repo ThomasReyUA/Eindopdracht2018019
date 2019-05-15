@@ -103,8 +103,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_loadImage_clicked()
 {
-    myProcessedIm.isLoaded = true;
-
     QString imagePath = QFileDialog::getOpenFileName(
                 this,
                 tr("Open File"),
@@ -126,8 +124,12 @@ void MainWindow::on_loadImage_clicked()
     ui->graphicsView->setScene(scene);
 
     // setting the input mat
-    myProcessedIm.inputMat = cv::Mat(scaledImage.height(),scaledImage.width(),CV_8UC4, const_cast<uchar*>(scaledImage.bits()), static_cast<size_t>(scaledImage.bytesPerLine()));
-    cvtColor(myProcessedIm.inputMat, myProcessedIm.inputMat, CV_RGB2GRAY);
+
+    input = cv::Mat(scaledImage.height(),scaledImage.width(),CV_8UC4, const_cast<uchar*>(scaledImage.bits()), static_cast<size_t>(scaledImage.bytesPerLine()));
+    cvtColor(input, input, CV_RGB2GRAY);
+    // BLUR
+    blur(input,myProcessedIm.inputMat, cv::Size(3,3));
+    Canny(myProcessedIm.inputMat,myProcessedIm.inputMat, 10, 30, 3);
 
     myProcessedIm.showInputMat();
     myProcessedIm.inputMade = true;
@@ -161,7 +163,7 @@ void MainWindow::on_input_clicked()
     if (countNonZero(myProcessedIm.inputMat) == 0 || myProcessedIm.inputMat.cv::Mat::empty() || !myProcessedIm.inputMade)
         //the inputMat should only be calculated when there is no data or only zeros or xhen a change is made
     {
-         myProcessedIm.inputMat = cv::Mat(cv::Size(ui->graphicsView->width(), ui->graphicsView->height()), CV_8UC1, cv::Scalar(0));
+        myProcessedIm.inputMat = cv::Mat(cv::Size(ui->graphicsView->width(), ui->graphicsView->height()), CV_8UC1, cv::Scalar(0));
         bool ok;
         for(int r=0; r < ui->parametersEllips->rowCount(); r++)
         {
@@ -183,8 +185,11 @@ void MainWindow::on_input_clicked()
 
             Ellipse el(cv::Point(x,y), a, b, alpha); // constructing an ellipse.
             myProcessedIm.addEllipse(el); // adding the ellips to the inputMat
+            myProcessedIm.InputEllipses.push_back(el);
         }
-        myProcessedIm.addNoise(ui->noiseSpinBox->value());
+        myProcessedIm.addNoise(ui->noiseSpinBox->value()); // adding the noise to the inputMat
+        // ADDLINE
+        cvtColor(myProcessedIm.inputMat, input, CV_GRAY2BGR);
         myProcessedIm.inputMade = true;
     }
 
@@ -284,7 +289,6 @@ void MainWindow::on_clear_clicked()
    ui->parametersEllips->clear();
    ui->parametersLine->clear();
 
-   myProcessedIm.isLoaded = false;
 }
 
 void MainWindow::on_parametersLine_cellChanged(int row, int column)
@@ -405,27 +409,18 @@ void MainWindow::on_calculate_clicked()
 
 void MainWindow::on_draw_clicked()
 {
-    myProcessedIm.Result = cv::Mat(cv::Size(ui->graphicsView->width(), ui->graphicsView->height()), CV_8UC3, cv::Scalar(0,0,0));
+    cv::Mat Result = cv::Mat(cv::Size(ui->graphicsView->width(), ui->graphicsView->height()), CV_8UC3, cv::Scalar(0,0,0));
+
     if(ui->input_check->isChecked())
     {
-        if(myProcessedIm.isLoaded)
-        {
-            myProcessedIm.Result = myProcessedIm.inputMat.clone();
-        }
-        else
-        {
-            for(std::vector<Ellipse>::iterator it = myProcessedIm.InputEllipses.begin(); it < myProcessedIm.InputEllipses.end(); it++)
-            {
-                cv::ellipse(myProcessedIm.Result,(*it).M,cv::Size((*it).a,(*it).b),(*it).angle ,0,360,(0,0,255),1);
-            }
-        }
+        Result = input.clone();
     }
 
     if(ui->CV_check->isChecked())
     {
         for(std::vector<Ellipse>::iterator it = myProcessedIm.CVRecognizedEllipses.begin(); it < myProcessedIm.CVRecognizedEllipses.end(); it++)
         {
-            cv::ellipse(myProcessedIm.Result,(*it).M,cv::Size((*it).a,(*it).b),(*it).angle ,0,360,(255,0,0),1);
+            cv::ellipse(Result,(*it).M,cv::Size((*it).a,(*it).b),-(*it).angle ,0,360,cv::Scalar(0,255,0),1);
         }
     }
 
@@ -433,11 +428,11 @@ void MainWindow::on_draw_clicked()
     {
         for(std::vector<Ellipse>::iterator it = myProcessedIm.XieRecognizedEllipses.begin(); it < myProcessedIm.XieRecognizedEllipses.end(); it++)
         {
-            cv::ellipse(myProcessedIm.Result,(*it).M,cv::Size((*it).a,(*it).b),(*it).angle ,0,360,(0,0,255),1);
+            cv::ellipse(Result,(*it).M,cv::Size((*it).a,(*it).b),-(*it).angle ,0,360,cv::Scalar(0,0,255),1);
         }
     }
 
-    QImage img = QImage((unsigned char*) myProcessedIm.Result.data, myProcessedIm.Result.cols, myProcessedIm.Result.rows, QImage::Format_RGB888);
+    QImage img = QImage((unsigned char*) Result.data, Result.cols, Result.rows, QImage::Format_RGB888);
     image = QPixmap::fromImage(img);
     scene = new QGraphicsScene(this);
     scene->addPixmap(image);

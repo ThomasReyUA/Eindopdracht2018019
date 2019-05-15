@@ -45,7 +45,7 @@ private:
     QPixmap image;
     QImage  *imageObject;
     QGraphicsScene *scene;
-
+    cv::Mat input;
     bool isNumber(std::string); // checks if the string is a number (- is allowed)
 };
 

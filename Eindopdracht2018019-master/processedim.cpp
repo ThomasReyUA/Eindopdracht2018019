@@ -149,7 +149,7 @@ loop2:
                     if ((*itMaxEl)>reqLeastVotesb)
                     {
                         b=(itMaxEl-vectorVotesb.begin());
-                        Ellipse res(center,a,b,-alpha*180/CV_PI);
+                        Ellipse res(center,a,b,alpha*180/CV_PI);
                         XieRecognizedEllipses.push_back(res);
                         res.remove(im,2);
                         if(countNonZero(im)<reqLeastVotesb)

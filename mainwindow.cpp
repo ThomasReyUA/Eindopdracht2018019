@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     ui->setupUi(this);
+    //knop
+    ui->draw->setDisabled(true);
 
     // setting the spinboxes
     ui->noiseSpinBox->setRange(0,15000);
@@ -54,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->CV_check->setCheckable(true);
     ui->Xie_check->setDisabled(true);
     ui->Xie_check->setCheckable(true);
+    ui->line_check->setCheckable(true);
 
     // setting the input table for the ellipses
     ui->parametersEllips->setColumnCount(5);
@@ -123,6 +126,8 @@ void MainWindow::on_loadImage_clicked()
     scene->setSceneRect(image.rect());
     ui->graphicsView->setScene(scene);
 
+    ui->input_check->setChecked(true);
+
     // setting the input mat
 
     input = cv::Mat(scaledImage.height(),scaledImage.width(),CV_8UC4, const_cast<uchar*>(scaledImage.bits()), static_cast<size_t>(scaledImage.bytesPerLine()));
@@ -135,6 +140,7 @@ void MainWindow::on_loadImage_clicked()
     myProcessedIm.inputMade = true;
 
     ui->Input_widget->setDisabled(true);
+    ui->lijn_widget->setDisabled(true);
 
     delete imageObject, scene;
 }
@@ -147,6 +153,7 @@ void MainWindow::on_saveImage_clicked()
                 "",
                 tr("PNG (*.png)" )
                 );
+
     if (imagePath.isNull() || imagePath.isEmpty()) return;
     if (!imagePath.endsWith(".png"))
         imagePath += ".png";
@@ -159,6 +166,7 @@ void MainWindow::on_saveImage_clicked()
 void MainWindow::on_input_clicked()
 {
     ui->loadImage_widget->setDisabled(true);
+    ui->draw->setDisabled(true);
 
     if (countNonZero(myProcessedIm.inputMat) == 0 || myProcessedIm.inputMat.cv::Mat::empty() || !myProcessedIm.inputMade)
         //the inputMat should only be calculated when there is no data or only zeros or xhen a change is made
@@ -188,7 +196,7 @@ void MainWindow::on_input_clicked()
             myProcessedIm.InputEllipses.push_back(el);
         }
         myProcessedIm.addNoise(ui->noiseSpinBox->value()); // adding the noise to the inputMat
-        // ADDLINE
+        // ADDLINE --> checkbox: line_check
         cvtColor(myProcessedIm.inputMat, input, CV_GRAY2BGR);
         myProcessedIm.inputMade = true;
     }
@@ -199,6 +207,8 @@ void MainWindow::on_input_clicked()
     scene->addPixmap(image);
     scene->setSceneRect(image.rect());
     ui->graphicsView->setScene(scene);
+
+    ui->input_check->setChecked(true);
 }
 
 void MainWindow::on_addLineButton_clicked()
@@ -277,17 +287,69 @@ void MainWindow::on_clear_clicked()
 {
     myProcessedIm.reset();
 
-   ui->graphicsView->setScene(0);
-   ui->graphicsView->viewport()->update();
-   ui->CV_text->clear();
-   ui->Xie_text->clear();
-   ui->CV_check->setChecked(false);
-   ui->CV_check->setDisabled(true);
-   ui->Xie_check->setChecked(false);
-   ui->Xie_check->setDisabled(true);
-   while(ui->parametersEllips->rowCount() > 1) ui->parametersEllips->removeRow(0);
-   ui->parametersEllips->clear();
-   ui->parametersLine->clear();
+    //graphicsView leeg
+    ui->graphicsView->setScene(0);
+    ui->graphicsView->viewport()->update();
+
+    //gevonden ellipsen leeg
+    ui->CV_text->clear();
+    ui->Xie_text->clear();
+
+    //checkboxen
+    ui->CV_check->setChecked(false);
+    ui->CV_check->setDisabled(true);
+    ui->Xie_check->setChecked(false);
+    ui->Xie_check->setDisabled(true);
+
+    //parametersspinboxen
+    ui->minVal2aSpinBox->setValue(30);
+    ui->minVal2bSpinBox->setValue(30);
+    ui->tresholdSpinBox->setValue(50);
+
+    ui->noiseSpinBox->setValue(0);
+
+    //tabel ellipsen
+    while(ui->parametersEllips->rowCount() > 1) ui->parametersEllips->removeRow(0);
+    ui->parametersEllips->clear();
+    for(int c=0; c<(ui->parametersEllips->columnCount());c++)
+    {
+        ui->parametersEllips->setColumnWidth(c,92);
+        // also looping over the rows, so when the initial amount is changed it will still work.
+        for(int r=0; r<ui->parametersEllips->rowCount(); r++)
+        {
+            ui->parametersEllips->setItem(r, c, new QTableWidgetItem("0"));
+
+        }
+    }
+
+    QStringList HeadersEl;
+    HeadersEl << "x" << "y" << "a" << "b" << "angle";
+    ui->parametersEllips->setHorizontalHeaderLabels(HeadersEl);
+
+    //tabel lijn
+    ui->parametersLine->clear();
+    for(int c=0; c<(ui->parametersLine->columnCount());c++)
+    {
+        ui->parametersLine->setColumnWidth(c,76);
+        // also looping over the rows, so when the initial amount is changed it will still work.
+        for(int r=0; r<ui->parametersLine->rowCount(); r++)
+        {
+            ui->parametersLine->setItem(r, c, new QTableWidgetItem("0"));
+
+        }
+    }
+
+    //knoppen ed
+    ui->draw->setDisabled(true);
+
+    ui->Input_widget->setEnabled(true);
+    ui->loadImage_widget->setEnabled(true);
+    ui->lijn_widget->setEnabled(true);
+
+    QStringList HeadersL;
+    HeadersL << "x" << "y" << "angle";
+    ui->parametersLine->setHorizontalHeaderLabels(HeadersL);
+    ui->parametersLine->verticalHeader()->hide();
 
 }
 
@@ -337,6 +399,7 @@ void MainWindow::on_calculate_clicked()
 {
     ui->CV_check->setEnabled(true);
     ui->Xie_check->setEnabled(true);
+    ui->draw->setEnabled(true);
 
     ui->CV_text->clear();
     ui->Xie_text->clear();

@@ -19,7 +19,7 @@ public:
 protected:
     void Xie_Algorithm(double reqLeastDistance1, double reqLeastDistance2, double reqLeastVotesb);
     //Our own implementation of the algorithm, outputs Ellipses into 'XieRecognizedEllipses'
-    void CV_Algorithm(size_t thresh=100);            //Implementation of cv function 'fitEllipse', outputs Ellipses into 'CVRecognizedEllipses'
+    void CV_Algorithm(size_t thresh=150);            //Implementation of cv function 'fitEllipse', outputs Ellipses into 'CVRecognizedEllipses'
 
     void reset();                   //Resets all Mat-obj to zero's, all counters to 0 and all containers to empty
     void addEllipse(Ellipse el1);   //Draws Ellipse on InputMat

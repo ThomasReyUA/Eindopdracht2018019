@@ -50,38 +50,41 @@ void ProcessedIm::showResultMat(){
 }
 
 void ProcessedIm::CV_Algorithm(size_t thresh){
+    if(countNonZero(inputMat)>=5)
+    {
+        cv::Mat im = inputMat.clone();
+        std::vector<cv::Point> currentContour = getBestContour(im,thresh);
+        while(currentContour.size() >= 5) {
+            std::cout<<currentContour.size();
+            cv::RotatedRect box = cv::fitEllipse(currentContour);
+            Ellipse res(cv::Point(int(box.center.x),int(box.center.y)),int(box.size.height/2),int(box.size.width/2),90-double(box.angle));
+            CVRecognizedEllipses.push_back(res);
+            res.remove(im,4);
+            currentContour = getBestContour(im,thresh);
 
-    cv::Mat im = inputMat.clone();
-    std::vector<cv::Point> currentContour = getBestContour(im,thresh);
-    while(currentContour.size() > 0) {
-        cv::RotatedRect box = cv::fitEllipse(currentContour);
-        Ellipse res(cv::Point(int(box.center.x),int(box.center.y)),int(box.size.height/2),int(box.size.width/2),90-double(box.angle));
-        CVRecognizedEllipses.push_back(res);
-        res.remove(im,4);
-        currentContour = getBestContour(im,thresh);
-        //std::cout << CVRecognizedEllipses.size() << std::endl;
-    }
-    for(std::vector<Ellipse>::iterator it=CVRecognizedEllipses.begin(); it!=CVRecognizedEllipses.end();it++){
-        (*it).draw(Result);
-    }
+        }
+        for(std::vector<Ellipse>::iterator it=CVRecognizedEllipses.begin(); it!=CVRecognizedEllipses.end();it++){
+            (*it).draw(Result);
+        }
 
-    //Temporarily Printing results
-    int x,y,a,b;
-    double angle;
-    printf("# of ellipses: %lu\n",CVRecognizedEllipses.size());
-    for(std::vector<Ellipse>::iterator it=CVRecognizedEllipses.begin(); it!=CVRecognizedEllipses.end();it++){
-        x=(*it).M.x;
-        y=(*it).M.y;
-        a=(*it).a;
-        b=(*it).b;
-        angle=(*it).angle;
-        printf("M = [%3d %3d], a = %3d, b = %3d, angle = %3.0f°\n", x,y,a,b,angle);
+        //Temporarily Printing results
+        int x,y,a,b;
+        double angle;
+        printf("# of ellipses: %lu\n",CVRecognizedEllipses.size());
+        for(std::vector<Ellipse>::iterator it=CVRecognizedEllipses.begin(); it!=CVRecognizedEllipses.end();it++){
+            x=(*it).M.x;
+            y=(*it).M.y;
+            a=(*it).a;
+            b=(*it).b;
+            angle=(*it).angle;
+            printf("M = [%3d %3d], a = %3d, b = %3d, angle = %3.0f°\n", x,y,a,b,angle);
+        }
     }
-
 }
 
 void ProcessedIm::Xie_Algorithm(double reqLeastDistance1, double reqLeastDistance2, double reqLeastVotesb) //input=binary mat file with the contourpoints, all points are stored in a vector of Points
 {
+    std::cout<<countNonZero(inputMat)<<std::endl;
     if(countNonZero(inputMat)>3)
     {
         reqLeastDistance1=reqLeastDistance1*2;
@@ -90,9 +93,9 @@ void ProcessedIm::Xie_Algorithm(double reqLeastDistance1, double reqLeastDistanc
         std::vector<cv::Point> contourPoints;
         std::vector<cv::Point> newContourPoints;
         findNonZero(im,contourPoints);
-
+        int maxb=(int)(floor(std::min(R,C)*0.5));
         std::sort(contourPoints.begin(),contourPoints.end(),comparePoints); //The vector contourPoints is sorted using our own rules, so we don't get unexpected behavior.
-        std::vector<int> vectorVotesb(148);
+        std::vector<int> vectorVotesb(maxb);
 
         cv::Point2i center(0,0);
         double a=0;
@@ -135,7 +138,7 @@ loop2:
                             numerator=a2*d2*(1-pow(cost,2));
                             denominator=a2-(d2*pow(cost,2));
                             b2=numerator*pow(denominator,-1);
-                            if(b2>0&&b2<a2)
+                            if(b2>0&&b2<a2&&b2<=pow(maxb,2)&&b2>=pow(reqLeastDistance2,2))
                             {
                                 b=pow(b2,0.5);
                                 ++vectorVotesb.at((int)round(b));
@@ -149,7 +152,7 @@ loop2:
                     if ((*itMaxEl)>reqLeastVotesb)
                     {
                         b=(itMaxEl-vectorVotesb.begin());
-                        Ellipse res(center,a,b,alpha*180/CV_PI);
+                        Ellipse res(center,a,b,-alpha*180/CV_PI);
                         XieRecognizedEllipses.push_back(res);
                         res.remove(im,2);
                         if(countNonZero(im)<reqLeastVotesb)
@@ -187,7 +190,7 @@ loop2:
                 ++it2;
 
             }
-            it2=contourPoints.begin();
+            it2=it1;
             ++it1;
         }
 endfunction:;
@@ -197,13 +200,15 @@ endfunction:;
 
 std::vector<cv::Point>  ProcessedIm::getBestContour(cv::Mat im ,size_t thresh){
     cv::Mat canny_output;
-        std::vector<std::vector<cv::Point> > contours;
-        std::vector<cv::Vec4i> hierarchy;
-
-        cv::Canny(im, canny_output, 100, 200, 3 );
-
-        findContours( canny_output, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
-
+    std::cout<<"testgetbestcontourbegin"<<std::endl;
+    std::vector<std::vector<cv::Point> > contours;
+    std::vector<cv::Vec4i> hierarchy;
+    blur(im,canny_output, cv::Size(3,3));
+    cv::Canny(canny_output, canny_output, 100, 300, 3 );
+    findContours( canny_output, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
+    //findContours( im, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
+    std::cout<<"testgetbestcontourmid"<<std::endl;
+    /*
         std::vector<cv::Point> bestContour = contours.at(0);
         size_t currentSize = bestContour.size();
         for(std::vector< std::vector<cv::Point> >::iterator it=contours.begin();it!=contours.end();++it){
@@ -212,8 +217,25 @@ std::vector<cv::Point>  ProcessedIm::getBestContour(cv::Mat im ,size_t thresh){
                 currentSize = it->size();
             }
         }
-        if(currentSize > thresh) return bestContour;
-        else return {};
+        */
+    std::vector<cv::Point> bestContour;
+    if(contours.size()>0)
+    {
+        bestContour=*std::max_element(contours.begin(),contours.end(),compareContours);
+        std::cout<<"testgetbestcontourend"<<std::endl;
+
+        //if(currentSize > thresh) return bestContour;
+        if(bestContour.size()>thresh)
+        {
+            std::cout<<bestContour.size()<<std::endl;
+            return bestContour;
+        }
+    }
+
+        bestContour.clear();
+        std::cout<<bestContour.size();
+        return bestContour;
+
 }
 
 std::vector<cv::Point> ProcessedIm::allSignalPixels(){

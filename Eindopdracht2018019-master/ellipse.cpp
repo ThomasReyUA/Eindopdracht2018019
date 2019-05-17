@@ -17,8 +17,11 @@ double Ellipse::initialize_alpha(double angle_) const{
 }
 
 void Ellipse::draw(cv::Mat mat,int thickness){
-    double alpha = -angle;
-    cv::ellipse(mat,M,cv::Size(a,b),alpha ,0,360,255,thickness);
+    if(a!=b||a!=0)
+    {
+        double alpha = -angle;
+        cv::ellipse(mat,M,cv::Size(a,b),alpha ,0,360,255,thickness);
+    }
 }
 
 

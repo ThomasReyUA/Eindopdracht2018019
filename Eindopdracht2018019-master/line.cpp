@@ -18,7 +18,7 @@ void Line::draw(cv::Mat mat,int thickness){
 
     if(abs(angle)<89.9)
     {
-        double m=tan(angle);
+        double m=tan(angle*3.1415926535/180);
         double b=-M.y-m*M.x;
         int x2=0;
         int x3=mat.cols+1;

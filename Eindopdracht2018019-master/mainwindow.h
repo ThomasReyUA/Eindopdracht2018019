@@ -7,6 +7,7 @@
 #include "processedim.h"
 #include "shape.h"
 #include "ellipse.h"
+#include "line.h"
 
 namespace Ui {
 class MainWindow;
